@@ -8,7 +8,6 @@ int main() {
 
     ms1.diffTo(ms2);
 //    ms1.drawTable();
-
     auto ms3 = MySet(-7, 1);
     auto ms4 = MySet(-1, 7);
 

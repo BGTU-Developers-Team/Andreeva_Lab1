@@ -5,120 +5,127 @@ MySet::MySet() {
 }
 
 MySet::MySet(int min, int max) {
-    length = max - min + 1;
+    length = max - min + 1; // найдем длину множества
     for (int i = min; i <= max; ++i) {
-        elements.push_back(i);
+        elements.push_back(i); // сохраняем все значения от min до max
     }
 }
 
 void MySet::unitWith(const MySet &set) {
-    std::vector<int> temp;
-    for (int i = 0; i < length; ++i) {
-        for (int j = 0; j < set.length; ++j) {
-            if (elements[i] == set.elements[j]) {
-                temp.push_back(elements[i]);
-                break;
+    std::vector<int> temp; // создадим пустой вектор, куда запишем нужные значения
+    for (int i = 0; i < length; ++i) { // перебираем элемента текущего множества
+        for (int j = 0; j < set.length; ++j) { // перебираем элементы переданного множества
+            if (elements[i] ==
+                set.elements[j]) { // проверяем, нашелся ли такой же элемент из текущего множества в переданном
+                temp.push_back(elements[i]); // если нашелся, то сохраняем его в вектор с нужными значениями
+                break; // больше искать не надо, можно прервать цикл
             }
         }
     }
 
-    elements = temp;
-    length = elements.size();
+    elements = temp; // после прохода по всем элементам текущего множества, переписываем временные нужные значения в долговечные
+    length = elements.size(); // сохраняем новую длину множества
 }
 
 void MySet::crossWith(const MySet &set) {
-    bool hasFoundSimilar = false;
-    for (int i = 0; i < set.length; ++i) {
-        for (int j = 0; j < length; ++j) {
-            if (set.elements[i] == elements[j]) {
-                hasFoundSimilar = true;
-                break;
+    bool hasFoundSimilar = false; // создадим переменную (флаг), которая следит за тем, нашли ли мы такой же элемент в другом множестве
+    for (int i = 0; i < set.length; ++i) { // перебираем элементы переданного множества
+        for (int j = 0; j < length; ++j) { // перебираем элементы текущего множества
+            if (set.elements[i] ==
+                elements[j]) { // проверяем, нашелся ли в текущем множестве такой же элемент, что и в переданном
+                hasFoundSimilar = true; // если нашелся, то меняем флаг на true
+                break; // перерываем цикл, потому что больше нет смысла идти по множеству дальше
             }
         }
 
         if (!hasFoundSimilar)
-            elements.push_back(set.elements[i]);
+            elements.push_back(
+                    set.elements[i]); // если не нашелся такой же элемент, то мы сохраняем в текущее множетсво тот элемент из переданного, который не нашелся в текущем
 
-        hasFoundSimilar = false;
+        hasFoundSimilar = false; // обновляем флаг для дальнейшего поиска
     }
 
-    length = elements.size();
+    length = elements.size(); // сохраняем новую длину текущего множества
 }
 
 void MySet::addElement(const int &element) {
-    for (int i = 0; i < length; ++i) {
-        if (elements[i] == element)
+    for (int i = 0; i < length; ++i) { // перебираем элементы текущего множества
+        if (elements[i] == element) // если переданный элемент уже существует, то мы ничего не делаем
             return;
     }
 
-    elements.push_back(element);
-    length = elements.size();
+    elements.push_back(
+            element); // если мы дошли до сюда, значит переданного элемента не нашлось в текущем множестве, поэтому надо его добавить
+    length++; // увеличиваем длину текущего множества на один добавленный элемент
 }
 
 bool MySet::contains(const int &element) {
-    for (int i = 0; i < length; ++i) {
-        if (elements[i] == element)
+    for (int i = 0; i < length; ++i) { // перебираем элементы множества
+        if (elements[i] == element) // если мы нашли переданный элемент, то вернем true
             return true;
     }
 
-    return false;
+    return false; // если не нашли, то вернем false
 }
 
 void MySet::diffTo(const MySet &set) {
-    std::vector<int> temp;
-    bool hasFoundSimilar = false;
-    for (int i = 0; i < length; ++i) {
-        for (int j = 0; j < set.length; ++j) {
-            if (elements[i] == set.elements[j]) {
-                hasFoundSimilar = true;
-                break;
+    std::vector<int> temp; // создадим пустой вектор, куда запишем нужные значения
+    bool hasFoundSimilar = false; // создадим переменную (флаг), которая следит за тем, нашли ли мы такой же элемент в другом множестве
+    for (int i = 0; i < length; ++i) { // перебираем элементы текущего множества
+        for (int j = 0; j < set.length; ++j) { // перебираем элементы переданного множества
+            if (elements[i] == set.elements[j]) { // если мы нашли такой же элемент в переданном множестве, то:
+                hasFoundSimilar = true; // меняем флаг
+                break; // прерываем цикл
             }
         }
 
-        if (!hasFoundSimilar)
-            temp.push_back(elements[i]);
+        if (!hasFoundSimilar) // если мы не смогли найти такой же элемент в переданном, то:
+            temp.push_back(elements[i]); // сохраним его в нужных элеменах
 
-        hasFoundSimilar = false;
+        hasFoundSimilar = false; // обновим флаг для дальнейших поисков
     }
 
-    elements = temp;
-    length = elements.size();
+    elements = temp; // пересохраним нужные элементы в текущее множество
+    length = elements.size(); // обновим длину текущего множества
 }
 
 int MySet::getMin() {
-    int min = elements[0];
+    int min = elements[0]; // за минимальный элемент примим самый первый элемент множества
 
-    for (int i = 1; i < length; ++i) {
-        if (elements[i] < min)
-            min = elements[i];
+    for (int i = 1; i < length; ++i) { // перебираем текущее множество, начиная со второго элемента
+        if (elements[i] < min) // если какой-то элемент множества меньше значения в минимальной переменной, то:
+            min = elements[i]; // сохраним значение этого элемента в минимальной переменной
     }
 
-    return min;
+    return min; // возвращаем минимальное значение множества
 }
 
 int MySet::getMax() {
-    int max = elements[0];
+    int max = elements[0]; // за максимальный элемент примим самый первый элемент множества
 
-    for (int i = 1; i < length; ++i) {
-        if (elements[i] > max)
-            max = elements[i];
+    for (int i = 1; i < length; ++i) { // перебираем текущее множество, начиная со второго элемента
+        if (elements[i] > max) // если какой-то элемент больше значени в максимальной переменной, то:
+            max = elements[i]; // сохраним значение этого элемента в минимальной переменной
     }
 
-    return max;
+    return max; // возвращаем максимальное значение множества
 }
 
 void MySet::drawTable() {
-    std::cout << std::endl;
+    std::cout << std::endl; // делаем отступ вначале
     std::cout << "Бинарная карта\n\n";
 
-    int val;
-    int min = getMin();
-    int max = getMax();
+    int val; // создадим переменную для получения бита отображения на карта ( Короче тут будет либо 1, либо 0)
+    int min = getMin(); // получаем минимальное значение
+    int max = getMax(); // получаем максимальное значение
 
-    for (int i = min; i <= max; ++i) {
-        val = contains(i) ? 1 : 0;
-        val = val < 0 ? 1 : val;
-        cout << i << '\t' << val << endl;
+    for (int i = min; i <= max; ++i) { // перебираем значение от минимальное до максимально текущего множества ПОДРЯД
+        val = contains(i) ? 1
+                          : 0; // contains() проверяет, есть ли такое число во множестве. ? заменяет if(). То, что перед ? можно мысленно поставить в (), если бы мы писали привычный if(). Если перед ? выражение истина, то подставляется то, что перед : Если же ложь, тогда то, что после : Таким образом, если значение i содержится во множество, то val = 1; если нет, то val = 0;
+        val = val < 0 ? 1
+                      : val; // Так как val может оказаться отрицательным, вернее, равен -1, то следует сделать похожую проверку: если val < 0 (отрицательный), то пусть val = 1; если же val не отрицательный, то пусть val = val, т.е. не изменится. А значит останется 0
+        cout << i << '\t' << val
+             << endl; // выводим в консоль сначала элемент, а потом 1 если он входит в множество и 0 если нет
     }
 
     cout << endl;
