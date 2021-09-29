@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -14,9 +15,13 @@ private:
     int getMin(); // находит минимальное значение в множестве
     int getMax(); // находит максимальное значение в множестве
 
+    void saveElement(std::string &stringBuilder);
+
 public:
     MySet(); // классический конструктор
     MySet(int min, int max); // конструктор создающий множество от min до max включительно
+    MySet(const MySet &orig); // конструктор, копирующий переданное ему множетсво
+    MySet(const std::string &setStr); // конструктор создающий множество из переданной строки
 
     void unitWith(const MySet &set); // объединяет текущее множество с переданным
     void crossWith(const MySet &set); // пересекает текущее мнржество с переданным
