@@ -9,9 +9,11 @@ using namespace std;
 
 class MySet {
 private:
+    // поля
     vector<int> elements; // Переменная для хранения элементов множества
     int length; // переменная для хранения длины множества
 
+    // методы
     int getMin(); // находит минимальное значение в множестве
     int getMax(); // находит максимальное значение в множестве
 
@@ -27,7 +29,7 @@ public:
     void crossWith(const MySet &set); // пересекает текущее мнржество с переданным
     void addElement(const int &element); // добавляет элемент в множество
     bool contains(const int &element); // проверяет, есть ли переданный элемент во множестве
-    void diffTo(const MySet &set); // находит разность текущее множества с переданым
+    void diffTo(const MySet &set); // находит разность текущего множества с переданым
 
     void drawTable(); // выводит в консоль бинарную карту множества
 };
