@@ -10,7 +10,8 @@ using namespace std;
 class MySet {
 private:
     // поля
-    vector<int> elements; // Переменная для хранения элементов множества
+//    vector<int> elements; // Переменная для хранения элементов множества
+    int *elements;
     int length; // переменная для хранения длины множества
 
     // методы

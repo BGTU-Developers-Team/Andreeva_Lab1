@@ -6,14 +6,16 @@ MySet::MySet() {
 
 MySet::MySet(int min, int max) {
     length = max - min + 1; // найдем длину множества
+    elements = new int[length];
     for (int i = min; i <= max; ++i) {
-        elements.push_back(i); // сохраняем все значения от min до max
+        elements[i - min] = i; // сохраняем все значения от min до max
     }
 }
 
 MySet::MySet(const MySet &orig) {
-    elements = orig.elements;
     length = orig.length;
+    elements = new int[length];
+    std::memcpy(elements, orig.elements, sizeof(int) * length);
 }
 
 MySet::MySet(const std::string &setStr) {
@@ -81,18 +83,30 @@ MySet::MySet(const std::string &setStr) {
 void MySet::saveElement(std::string &stringBuilder) { // -10
     int element; // переменная для временного хранения элемента матрицы (Для его сохранения)
 
-    std::istringstream ss(stringBuilder); // мы берем нашу строку с записанными данными и делаем из него поток данных для того, чтобы потом можно было сделать проверку, а можно ли его вообще записать в наше временную переменную.
+    std::istringstream ss(
+            stringBuilder); // мы берем нашу строку с записанными данными и делаем из него поток данных для того, чтобы потом можно было сделать проверку, а можно ли его вообще записать в наше временную переменную.
     stringBuilder.clear(); // очищаем собранный из символов элемент матрицы
     if (ss >> element) { // Пытаемся записать строку, собранную до того посимвольно, во временную переменную
         // Если успешно, то:
         if (!contains(element)) {
-            elements.push_back(element); // сохраняем новый элемент
             length++; // увеличиваем длину на 1
+
+            // сохраняем новый элемент
+            if (length == 1) {
+                elements = new int[1]{element};
+            } else {
+                int *temp = new int[length];
+                std::memcpy(temp, elements, sizeof(int) * length);
+                delete[] elements;
+                elements = temp;
+            }
         }
 
     } else {
         // Если не удалось записать собранную строчку во временную переменную, то:
-        elements.clear(); // очистить лементы. Они уже не нужны, потому что матрица неправильно пришла на обработку.
+
+        // очистить лементы. Они уже не нужны, потому что матрица неправильно пришла на обработку.
+        delete[] elements;
 
         length = 0; // обнуолим длину множества
 
@@ -102,23 +116,45 @@ void MySet::saveElement(std::string &stringBuilder) { // -10
 }
 
 void MySet::unitWith(const MySet &set) {
-    std::vector<int> temp; // создадим пустой вектор, куда запишем нужные значения
+    // создадим пустой вектор, куда запишем нужные значения
+    int *temp;
+    int idx = 0;
+    int newLength = 0;
+    int *temp4temp;
     for (int i = 0; i < length; ++i) { // перебираем элемента текущего множества
         for (int j = 0; j < set.length; ++j) { // перебираем элементы переданного множества
             if (elements[i] ==
                 set.elements[j]) { // проверяем, нашелся ли такой же элемент из текущего множества в переданном
-                temp.push_back(elements[i]); // если нашелся, то сохраняем его в вектор с нужными значениями
+                // если нашелся, то сохраняем его в вектор с нужными значениями
+                if (newLength == 0) {
+                    temp = new int[++newLength]{elements[i]};
+                    ++idx;
+                } else {
+                    temp4temp = new int[newLength + 1];
+                    std::memcpy(temp4temp, temp, sizeof(int) * newLength++);
+                    delete[] temp;
+                    temp = temp4temp;
+                    temp[idx++] = elements[i];
+                }
+
                 break; // больше искать не надо, можно прервать цикл
             }
         }
     }
 
-    elements = temp; // после прохода по всем элементам текущего множества, переписываем временные нужные значения в долговечные
-    length = elements.size(); // сохраняем новую длину множества
+    // после прохода по всем элементам текущего множества, переписываем временные нужные значения в долговечные
+    delete[] elements;
+    elements = temp;
+
+    // сохраняем новую длину множества
+    length = newLength;
 }
 
 void MySet::crossWith(const MySet &set) {
     bool hasFoundSimilar = false; // создадим переменную (флаг), которая следит за тем, нашли ли мы такой же элемент в другом множестве
+    int *temp;
+    int idx = 1;
+    int newLength = length;
     for (int i = 0; i < set.length; ++i) { // перебираем элементы переданного множества
         for (int j = 0; j < length; ++j) { // перебираем элементы текущего множества
             if (set.elements[i] ==
@@ -128,14 +164,20 @@ void MySet::crossWith(const MySet &set) {
             }
         }
 
-        if (!hasFoundSimilar)
-            elements.push_back(
-                    set.elements[i]); // если не нашелся такой же элемент, то мы сохраняем в текущее множетсво тот элемент из переданного, который не нашелся в текущем
+        if (!hasFoundSimilar) {
+            // если не нашелся такой же элемент, то мы сохраняем в текущее множетсво тот элемент из переданного, который не нашелся в текущем
+            temp = new int[++newLength];
+            std::memcpy(temp, elements, sizeof(int) * (newLength - 1));
+            temp[newLength - 1] = set.elements[i];
+            delete[] elements;
+            elements = temp;
+        }
 
         hasFoundSimilar = false; // обновляем флаг для дальнейшего поиска
     }
 
-    length = elements.size(); // сохраняем новую длину текущего множества
+    // сохраняем новую длину текущего множества
+    length = newLength;
 }
 
 void MySet::addElement(const int &element) {
@@ -144,9 +186,17 @@ void MySet::addElement(const int &element) {
             return;
     }
 
-    elements.push_back(
-            element); // если мы дошли до сюда, значит переданного элемента не нашлось в текущем множестве, поэтому надо его добавить
-    length++; // увеличиваем длину текущего множества на один добавленный элемент
+    // если мы дошли до сюда, значит переданного элемента не нашлось в текущем множестве, поэтому надо его добавить
+    if (length == 0) {
+        elements = new int[1]{element};
+        ++length;
+    } else {
+        int *temp = new int[length + 1];
+        std::memcpy(temp, elements, sizeof(int) * length++);
+        delete[] elements;
+        temp[length - 1] = element;
+        elements = temp;
+    }
 }
 
 bool MySet::contains(const int &element) {
@@ -159,24 +209,45 @@ bool MySet::contains(const int &element) {
 }
 
 void MySet::diffTo(const MySet &set) {
-    std::vector<int> temp; // создадим пустой вектор, куда запишем нужные значения
+    // создадим пустой вектор, куда запишем нужные значения
+    int *temp;
+    int idx = 0;
+    int newLength = 0;
+    int *temp4temp;
+
     bool hasFoundSimilar = false; // создадим переменную (флаг), которая следит за тем, нашли ли мы такой же элемент в другом множестве
     for (int i = 0; i < length; ++i) { // перебираем элементы текущего множества
         for (int j = 0; j < set.length; ++j) { // перебираем элементы переданного множества
             if (elements[i] == set.elements[j]) { // если мы нашли такой же элемент в переданном множестве, то:
-                hasFoundSimilar = true; // меняем флаг
+                hasFoundSimilar = true;
                 break; // прерываем цикл
             }
         }
 
-        if (!hasFoundSimilar) // если мы не смогли найти такой же элемент в переданном, то:
-            temp.push_back(elements[i]); // сохраним его в нужных элеменах
+        // если мы не смогли найти такой же элемент в переданном, то:
+        if (!hasFoundSimilar) {
+            // сохраним его в нужных элеменах
+            if (newLength == 0) {
+                temp = new int[++newLength]{elements[i]};
+                ++idx;
+            } else {
+                temp4temp = new int[newLength + 1];
+                std::memcpy(temp4temp, temp, sizeof(int) * newLength++);
+                delete[] temp;
+                temp = temp4temp;
+                temp[idx++] = elements[i];
+            }
+        }
 
         hasFoundSimilar = false; // обновим флаг для дальнейших поисков
     }
 
-    elements = temp; // пересохраним нужные элементы в текущее множество
-    length = elements.size(); // обновим длину текущего множества
+    // пересохраним нужные элементы в текущее множество
+    delete[] elements;
+    elements = temp;
+
+    // обновим длину текущего множества
+    length = newLength;
 }
 
 int MySet::getMin() {
